@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Select Audit Type</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .selection-container {
+            width: 500px;
+            height: 420px;
+            background: linear-gradient(135deg, rgba(216, 213, 223, 0.99) 0%, rgba(194, 181, 197, 0.99) 100%);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            -webkit-app-region: drag;
+        }
+
+        .window-controls {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 8px;
+            z-index: 10;
+        }
+
+        .control-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            color: white;
+            -webkit-app-region: no-drag;
+        }
+
+        .minimize-btn {
+            background: #fbbf24;
+        }
+
+        .minimize-btn:hover {
+            background: #f59e0b;
+            transform: scale(1.1);
+        }
+
+        .close-btn {
+            background: #ef4444;
+        }
+
+        .close-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .selection-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+        }
+
+        .selection-header {
+            position: relative;
+            text-align: center;
+            padding: 20px 0 30px 0;
+        }
+
+        .selection-header img {
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 60px;
+            width: auto;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .selection-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+            margin-top: 0;
+        }
+
+        .selection-subtitle {
+            font-size: 12px;
+            color: #718096;
+            margin: 0;
+        }
+
+        .audit-options {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            flex: 1;
+            padding: 0 10px;
+        }
+
+        .audit-option {
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: relative;
+            overflow: hidden;
+            -webkit-app-region: no-drag;
+        }
+
+        .audit-option:hover {
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        }
+
+        .audit-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .audit-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .internal-icon {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .external-icon {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .audit-content {
+            flex: 1;
+        }
+
+        .audit-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .audit-description {
+            font-size: 12px;
+            color: #718096;
+            line-height: 1.4;
+        }
+
+        .selection-indicator {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #cbd5e0;
+            border-radius: 50%;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .audit-option.selected .selection-indicator {
+            border-color: #667eea;
+            background: #667eea;
+        }
+
+        .audit-option.selected .selection-indicator::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            opacity: 0.5;
+            -webkit-app-region: no-drag;
+        }
+
+        .continue-btn.enabled {
+            opacity: 1;
+        }
+
+        .continue-btn.enabled:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .continue-btn:active {
+            transform: translateY(0);
+        }
+
+        .continue-btn:disabled {
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-message {
+            margin-top: 12px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .status-message.show {
+            opacity: 1;
+        }
+
+        .status-message.success {
+            background: rgba(34, 197, 94, 0.1);
+            color: #16a34a;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="selection-container">
+        <!-- Window Controls -->
+        <div class="window-controls">
+            <button class="control-btn minimize-btn" onclick="minimizeWindow()" title="Minimize">−</button>
+            <button class="control-btn close-btn" onclick="closeWindow()" title="Close">×</button>
+        </div>
+
+        <div class="selection-header">
+            <img src="external/img/logo.png" alt="Logo">
+            <h2 class="selection-title">Select Audit Type</h2>
+            <p class="selection-subtitle">Choose the type of audit you want to perform</p>
+        </div>
+
+        <div class="audit-options">
+            <div class="audit-option" data-type="internal" onclick="selectAuditType('internal')">
+                <div class="audit-icon internal-icon">🏢</div>
+                <div class="audit-content">
+                    <div class="audit-name">Internal Audit</div>
+                    <div class="audit-description">Comprehensive internal system audit and compliance check</div>
+                </div>
+                <div class="selection-indicator"></div>
+            </div>
+
+            <div class="audit-option" data-type="external" onclick="selectAuditType('external')">
+                <div class="audit-icon external-icon">🌐</div>
+                <div class="audit-content">
+                    <div class="audit-name">External Audit</div>
+                    <div class="audit-description">External security assessment and vulnerability scanning</div>
+                </div>
+                <div class="selection-indicator"></div>
+            </div>
+        </div>
+
+        <button id="continueBtn" class="continue-btn" onclick="proceedWithAudit()" disabled>
+            Continue
+        </button>
+
+        <div id="status" class="status-message"></div>
+    </div>
+
+    <script>
+        let selectedAuditType = null;
+        const continueBtn = document.getElementById('continueBtn');
+        const statusDiv = document.getElementById('status');
+
+        function selectAuditType(type) {
+            // Remove previous selection
+            document.querySelectorAll('.audit-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Add selection to clicked option
+            const selectedOption = document.querySelector(`[data-type="${type}"]`);
+            selectedOption.classList.add('selected');
+
+            selectedAuditType = type;
+            
+            // Enable continue button
+            continueBtn.disabled = false;
+            continueBtn.classList.add('enabled');
+        }
+
+        function showStatus(message, type = 'success') {
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message show ${type}`;
+
+            setTimeout(() => {
+                statusDiv.classList.remove('show');
+            }, 2000);
+        }
+
+        function setLoading(isLoading) {
+            if (isLoading) {
+                continueBtn.innerHTML = '<span class="loading"></span>Loading...';
+                continueBtn.disabled = true;
+            } else {
+                continueBtn.innerHTML = 'Continue';
+                continueBtn.disabled = selectedAuditType === null;
+            }
+        }
+
+        function proceedWithAudit() {
+            if (!selectedAuditType) {
+                return;
+            }
+
+            setLoading(true);
+            showStatus(`Starting ${selectedAuditType} audit...`);
+
+            // Redirect based on audit type selection
+            setTimeout(() => {
+                if (selectedAuditType === 'internal') {
+                    // Redirect to dashboard for Internal Audit
+                    if (window.electronAPI && window.electronAPI.loadDashboard) {
+                        window.electronAPI.loadDashboard();
+                    } else {
+                        window.location.href = 'internal/index.html';
+                    }
+                } else if (selectedAuditType === 'external') {
+                    // Redirect to main index for External Audit
+                    if (window.electronAPI && window.electronAPI.loadMainIndex) {
+                        window.electronAPI.loadMainIndex();
+                    } else {
+                        window.location.href = 'login/login.html';
+                    }
+                }
+                setLoading(false);
+            }, 1000);
+        }
+
+        // Window control functions
+        function minimizeWindow() {
+            if (window.electronAPI && window.electronAPI.minimizeWindow) {
+                window.electronAPI.minimizeWindow();
+            }
+        }
+
+        function closeWindow() {
+            if (window.electronAPI && window.electronAPI.closeApp) {
+                window.electronAPI.closeApp();
+            }
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && selectedAuditType && !continueBtn.disabled) {
+                proceedWithAudit();
+            } else if (e.key === '1') {
+                selectAuditType('internal');
+            } else if (e.key === '2') {
+                selectAuditType('external');
+            }
+        });
+    </script>
+</body>
+
+</html>

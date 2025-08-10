@@ -1,0 +1,33 @@
+{
+  "name": "electron-login-app",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Dimuthu Prageeth",
+  "scripts": {
+    "start": "electron .",
+    "backend": "node backend/server.js",
+    "dist": "electron-builder"
+  },
+  "build": {
+    "appId": "com.yourdomain.pythonrunner",
+    "productName": "PythonRunner",
+    "files": [
+      "**/*"
+    ],
+    "win": {
+      "target": "nsis"
+    }
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.14.2"
+  },
+  "devDependencies": {
+    "electron": "^29.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "keywords": [],
+  "license": "ISC",
+  "description": ""
+}
